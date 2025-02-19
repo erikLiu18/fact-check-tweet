@@ -17,7 +17,7 @@ def search_claims(query):
     page_count = 0  # Counter for the number of pages processed
     page_size = 100  # Number of claims per page
     delay_between_requests = 1  # Delay in seconds between requests
-    max_retries = 7  # Maximum number of retries for API requests
+    max_retries = 8  # Maximum number of retries for API requests
 
     try:
         # Build the service object
