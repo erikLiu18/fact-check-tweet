@@ -1,0 +1,45 @@
+{
+    "data_param": {
+        "dataset": "time_sorted",
+        "max_data_size": -1,
+        "batch_size": 1,
+        "data_root": "./data",
+        "train_datapath": "1-2020",
+        "val_datapath": "",
+        "test_datapath": "12-2020",
+        "num_classes": 2,
+        "filter_long_text": true
+    },
+    "model": "gpt",
+    "tokenizer": "openai-gpt",
+    "model_param": {
+        "vocab_size": 40478,
+        "n_positions": 512,
+        "n_embd": 768,
+        "n_layer": 12,
+        "n_head": 12,
+        "afn": "gelu",
+        "resid_pdrop": 0.1,
+        "embd_pdrop": 0.1,
+        "atten_pdrop": 0.1,
+        "layer_norm_epsilon": 1.0e-5,
+        "initializer_range": 0.02,
+        "summary_type": "cls_index",
+        "summary_use_proj": true,
+        "summary_activation": null,
+        "summary_proj_to_labels": true,
+        "summary_first_dropout": 0.1
+    },
+    "trainer_param": {
+        "epochs": 20,
+        "val_epochs": 1,
+        "loss_func": "cross_entropy",
+        "metric": "acc",
+        "optimizer": "AdamW",
+        "optimizer_param": {
+            "lr": 1.0e-5,
+            "eps": 1.0e-6,
+            "weight_decay": 0.0005
+        }
+    }
+}

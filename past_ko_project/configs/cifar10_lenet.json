@@ -1,0 +1,24 @@
+{
+    "data_param": {
+        "dataset": "cifar10",
+        "batch_size": 64,
+        "data_root": "./data"
+    },
+    "model": "lenet",
+    "trainer_param": {
+        "epochs": 20,
+        "val_epochs": 10,
+        "loss_func": "cross_entropy",
+        "metric": "acc",
+        "optimizer": "SGD",
+        "optimizer_param": {
+            "lr": 0.05,
+            "momentum": 0.9,
+            "weight_decay": 0.0005
+        },
+        "scheduler": "ExponentialLR",
+        "scheduler_param": {
+            "gamma": 0.95
+        }
+    }
+}
