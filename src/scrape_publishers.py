@@ -1,3 +1,4 @@
+import os
 import time
 import json
 import pandas as pd
@@ -28,7 +29,6 @@ def main():
         "snopes.com",
         "factcheck.org",
         "factcheck.afp.com",
-        "cnn.com",
     ]
 
     # Scrape claims for the list of publishers
@@ -36,7 +36,7 @@ def main():
 
     if claims:
         current_timestamp = int(time.time())  # Get current timestamp
-        output_file = f'fact_claims_{current_timestamp}.json'  # Append timestamp to the filename
+        output_file = f'{os.path.abspath(os.path.join(os.path.dirname(__file__), "../data"))}/fact_claims_{current_timestamp}.json'  # Use absolute path based on script location
         with open(output_file, 'w') as json_file:
             json.dump(claims, json_file, indent=4)
         print(f"Combined claims saved to {output_file}")
@@ -44,5 +44,4 @@ def main():
         print("No claims found for the specified publishers.")
 
 if __name__ == "__main__":
-
     main()
