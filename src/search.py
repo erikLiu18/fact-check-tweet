@@ -1,17 +1,18 @@
 import json
 import time
+import os
+import logging
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-import os
 
-def save_claims_to_file(claims, query):
-    filename = f'fact_claims_{query}.json'  # Use query as part of the filename
-    filepath = os.path.abspath(os.path.join(os.path.dirname(__file__), '../data', filename))
-    with open(filepath, 'w') as json_file:
-        json.dump(claims, json_file, indent=4)
-    print(f"Claims saved to {filepath}")
+# Set up logging to a file
+log_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../logs/search.log'))
+logging.basicConfig(filename=log_file_path, level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def search_claims(query):
+def search_claims(query=None, publisher=None):
+    if not query and not publisher:
+        raise ValueError("Either 'query' or 'publisher' must be provided.")
+
     api_key = 'AIzaSyCbKpZvfiVEDQGrA6tZap5E0e4-yNb4SNg'
     all_claims = []  # List to hold all claims
     page_count = 0  # Counter for the number of pages processed
@@ -25,8 +26,18 @@ def search_claims(query):
                        developerKey=api_key,
                        discoveryServiceUrl='https://factchecktools.googleapis.com/$discovery/rest?version=v1alpha1')
         
-        # Initialize the request
-        request = service.claims().search(query=query, languageCode='en', pageSize=page_size)
+        # Initialize the request with the appropriate filters
+        request_params = {
+            'languageCode': 'en',
+            'pageSize': page_size
+        }
+        
+        if query:
+            request_params['query'] = query
+        if publisher:
+            request_params['reviewPublisherSiteFilter'] = publisher
+        
+        request = service.claims().search(**request_params)
         
         while request is not None:
             for attempt in range(max_retries):
@@ -42,7 +53,8 @@ def search_claims(query):
                     # Check for nextPageToken and create a new request if it exists
                     next_page_token = response.get('nextPageToken')
                     if next_page_token:
-                        request = service.claims().search(query=query, languageCode='en', pageToken=next_page_token, pageSize=page_size)
+                        request_params['pageToken'] = next_page_token
+                        request = service.claims().search(**request_params)
                     else:
                         request = None
                     
@@ -56,6 +68,8 @@ def search_claims(query):
                         print(f"Retrying in {wait_time} seconds...")
                         time.sleep(wait_time)  # Wait before retrying
                     else:
+                        # Log the request parameters if all retries fail
+                        logging.error(f"Max retries reached. Request parameters: {request_params}")
                         print("Max retries reached. Moving on to the next request.")
                         request = None  # Exit the loop if max retries reached
         
@@ -65,12 +79,10 @@ def search_claims(query):
         print(f"An error occurred: {e}")
         return None
 
-def main():
-    query = input("Enter a claim to fact check: ")
-    results = search_claims(query)
-    
-    if results:
-        save_claims_to_file(results, query)  # Pass query to save_claims_to_file
-
-if __name__ == "__main__":
-    main() 
+def save_claims_to_file(claims, identifier):
+    current_timestamp = int(time.time())  # Get current timestamp
+    filename = f'fact_claims_{identifier}_{current_timestamp}.json'  # Append timestamp to the filename
+    filepath = os.path.abspath(os.path.join(os.path.dirname(__file__), '../data', filename))
+    with open(filepath, 'w') as json_file:
+        json.dump(claims, json_file, indent=4)
+    print(f"Claims saved to {filepath}")

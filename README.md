@@ -12,3 +12,6 @@ To update conda environment file, run the following command:
 ```bash
 conda env export > environment.yml
 ```
+
+## Related Literature
+https://misinforeview.hks.harvard.edu/article/fact-checking-fact-checkers-a-data-driven-approach/
