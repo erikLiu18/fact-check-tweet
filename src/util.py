@@ -2,7 +2,7 @@ import pandas as pd
 import json
 
 def load_claims_from_file(filename):
-    with open(filename, 'r') as json_file:
+    with open(filename, 'r', encoding='utf-8') as json_file:
         return json.load(json_file)
 
 def convert_claims_to_dataframe(claims):
