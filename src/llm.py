@@ -15,7 +15,7 @@ class QwenModel:
             device_map="auto",
             cache_dir=cache_dir
         )
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=cache_dir)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir=cache_dir, padding_side='left')
     
     def generate_response(self, user_prompt, system_prompt="You are a helpful assistant.", max_new_tokens=512, temperature=1.0):
         """
@@ -138,10 +138,17 @@ if __name__ == "__main__":
         "Pennsylvania Gov. Josh Shapiro is being charged with the attempted assassination of Trump.",
         "From the U.S. Agency for International Development funding, 10 to 30 cents on the dollar is what actually goes to aid."
     ]
+
+    system_prompt = """You are a helpful assistant that generates short, engaging tweets (maximum 280 characters) 
+    based on given claims. Your task is to create tweets that spread the information in the claim. 
+    Make the tweets sound natural, as if written by a regular Twitter user. 
+    Do not include hashtags, @mentions, or URLs unless they are part of the original claim.
+    Only respond with the tweet, no other text.
+    """
     
     batch_responses = qwen.batch_generate_responses(
         user_prompts=user_prompts,
-        system_prompt="You are an expert at creating tweet messages spreading the given information.",
+        system_prompt=system_prompt,
         responses_per_prompt=4,
         temperature=0.8,
         max_new_tokens=100,
