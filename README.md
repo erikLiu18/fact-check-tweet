@@ -13,6 +13,11 @@ To update conda environment file, run the following command:
 conda env export > environment.yml
 ```
 
+To allocate GPU on PACE ICE:
+```
+salloc --gres=gpu:H100:1 --ntasks-per-node=1
+```
+
 ## Important links to prior datasets and KO project
 * Workflow of the KO project and tutorial: [link](https://drive.google.com/file/d/1FQ-ZDHSC4dq0d38EIF1J92_zNFdSYoDo/view?usp=sharing)
 * [NELA Dataset](https://gtvault-my.sharepoint.com/:f:/g/personal/khu83_gatech_edu/EpLrHHhqikxKmNnffXBvD30BufXfZsfUMYNzOGj5FFm6Cw?e=7hSyvO)
