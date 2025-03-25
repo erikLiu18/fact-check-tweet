@@ -34,7 +34,7 @@ def load_preprocessed_data(file_path, subset_size=None):
     
     return data
 
-def generate_tweets(model, fact_checks, tweets_per_check=10, batch_size=4, max_tokens=100):
+def generate_tweets(model, fact_checks, tweets_per_check=10, batch_size=4, max_tokens=100, temperature=0.8, top_p=0.95, top_k=50):
     """
     Generate tweets for each fact check using the LLM.
     
@@ -44,13 +44,15 @@ def generate_tweets(model, fact_checks, tweets_per_check=10, batch_size=4, max_t
         tweets_per_check (int): Number of tweets to generate per fact check
         batch_size (int): Batch size for processing
         max_tokens (int): Maximum number of tokens to generate per tweet
+        top_p (float): Nucleus sampling parameter (default: 0.95)
+        top_k (int): Top-k sampling parameter (default: 50)
         
     Returns:
         list: List of dictionaries with original fact check and generated tweets
     """
-    system_prompt = """You are a helpful assistant that generates short, engaging tweets (maximum 280 characters) 
-    based on given claims. Your task is to create tweets that spread the information in the claim. 
-    Make the tweets sound natural, as if written by a regular Twitter user. 
+    system_prompt = """You are a helpful assistant that generates short tweet (maximum 280 characters) 
+    based on given claims. Your task is to create tweets that spread the information in the claim with different wording and style. 
+    Make the tweets sound natural, as if written by a regular Twitter user. The tweets can vary in length from the original claim.
     Do not include hashtags, @mentions, or URLs unless they are part of the original claim.
     Only respond with the tweet, no other text."""
     
@@ -64,9 +66,11 @@ def generate_tweets(model, fact_checks, tweets_per_check=10, batch_size=4, max_t
         user_prompts=user_prompts,
         system_prompt=system_prompt,
         responses_per_prompt=tweets_per_check,
-        temperature=0.8,
+        temperature=temperature,
         batch_size=batch_size,
-        max_new_tokens=max_tokens
+        max_new_tokens=max_tokens,
+        top_p=top_p,
+        top_k=top_k
     )
     
     # Combine original fact checks with generated tweets
@@ -122,12 +126,18 @@ def main():
                         help='Path to save the generated tweets (JSONL format)')
     parser.add_argument('--subset', type=int, default=10,
                         help='Number of fact checks to process (for testing)')
-    parser.add_argument('--tweets-per-check', type=int, default=10,
+    parser.add_argument('--tweets-per-check', type=int, default=5,
                         help='Number of tweets to generate per fact check')
     parser.add_argument('--batch-size', type=int, default=4,
                         help='Batch size for processing')
-    parser.add_argument('--max-tokens', type=int, default=100,
+    parser.add_argument('--max-tokens', type=int, default=200,
                         help='Maximum number of tokens to generate per tweet')
+    parser.add_argument('--temperature', type=float, default=1,
+                        help='Temperature for sampling (default: 0.8)')
+    parser.add_argument('--top-p', type=float, default=0.95,
+                        help='Nucleus sampling parameter (default: 0.95)')
+    parser.add_argument('--top-k', type=int, default=50,
+                        help='Top-k sampling parameter (default: 50)')
     args = parser.parse_args()
     
     # Load the preprocessed data
@@ -142,7 +152,10 @@ def main():
         fact_checks=fact_checks,
         tweets_per_check=args.tweets_per_check,
         batch_size=args.batch_size,
-        max_tokens=args.max_tokens
+        max_tokens=args.max_tokens,
+        temperature=args.temperature,
+        top_p=args.top_p,
+        top_k=args.top_k
     )
     
     # Save the results

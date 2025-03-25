@@ -59,7 +59,7 @@ class QwenModel:
         return response
     
     def batch_generate_responses(self, user_prompts, system_prompt="You are a helpful assistant.", 
-                                 responses_per_prompt=3, max_new_tokens=512, temperature=0.7, batch_size=8):
+                                 responses_per_prompt=3, max_new_tokens=512, temperature=1.0, batch_size=8, top_p=0.95, top_k=50):
         """
         Generate multiple responses for a list of user prompts with the same system prompt.
         Uses batch processing for efficiency.
@@ -111,7 +111,9 @@ class QwenModel:
                     max_new_tokens=max_new_tokens,
                     temperature=temperature,
                     do_sample=True if temperature > 0 else False,
-                    num_return_sequences=1
+                    num_return_sequences=1,
+                    top_p=top_p,
+                    top_k=top_k
                 )
                 
                 # Extract only the generated part (excluding the input)
@@ -150,7 +152,9 @@ if __name__ == "__main__":
         user_prompts=user_prompts,
         system_prompt=system_prompt,
         responses_per_prompt=4,
-        temperature=0.8,
+        temperature=1.2,
+        top_p=0.95,
+        top_k=50,
         max_new_tokens=100,
     )
     
