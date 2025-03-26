@@ -7,6 +7,12 @@ conda create -n iec -f environment.yml
 conda activate iec
 ```
 
+## Usage
+### train_classifier.py
+* Train a new model: `python src/train_classifier.py --train`
+* Evaluate an existing model: `python src/train_classifier.py --evaluate --model-dir models/roberta_classifier`
+* Train and evaluate in one go: `python src/train_classifier.py --train --evaluate`
+
 ## Notes
 To update conda environment file, run the following command:
 ```bash

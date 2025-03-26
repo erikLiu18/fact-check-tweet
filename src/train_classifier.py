@@ -6,6 +6,7 @@ from sklearn.metrics import accuracy_score, classification_report
 from tqdm import tqdm
 import numpy as np
 from pathlib import Path
+import argparse
 
 class FactCheckDataset(Dataset):
     def __init__(self, texts, labels, tokenizer, max_length=512):
@@ -82,6 +83,22 @@ def train_model(model, train_loader, val_loader, device, num_epochs=3, learning_
     
     return best_model
 
+def save_evaluation_results(results: str, output_dir: str) -> None:
+    """
+    Save evaluation results to a file.
+    
+    Args:
+        results: String containing evaluation results
+        output_dir: Directory to save the results
+    """
+    output_dir = Path(output_dir)
+    output_file = output_dir / "evaluation_results.txt"
+    
+    with open(output_file, 'w') as f:
+        f.write(results)
+    
+    print(f"Evaluation results saved to {output_file}")
+
 def evaluate_model(model, test_loader, device):
     """Evaluate the model on the test set."""
     model.eval()
@@ -100,10 +117,25 @@ def evaluate_model(model, test_loader, device):
             test_preds.extend(predictions.cpu().numpy())
             test_labels.extend(labels.cpu().numpy())
     
+    # Generate evaluation results
+    results = classification_report(test_labels, test_preds, target_names=['False', 'True'])
     print('\nTest Set Results:')
-    print(classification_report(test_labels, test_preds, target_names=['False', 'True']))
+    print(results)
+    return results
 
 def main():
+    parser = argparse.ArgumentParser(description='Train or evaluate RoBERTa classifier')
+    parser.add_argument('--train', action='store_true',
+                        help='Train a new model')
+    parser.add_argument('--evaluate', action='store_true',
+                        help='Evaluate an existing model')
+    parser.add_argument('--model-dir', type=str, default='models/roberta_classifier',
+                        help='Directory containing the model to evaluate or save the new model')
+    args = parser.parse_args()
+    
+    if not args.train and not args.evaluate:
+        parser.error("At least one of --train or --evaluate must be specified")
+    
     # Set random seed for reproducibility
     torch.manual_seed(42)
     np.random.seed(42)
@@ -120,9 +152,15 @@ def main():
     
     # Initialize tokenizer and model
     print('Initializing model and tokenizer...')
-    model_name = 'roberta-base'
-    tokenizer = RobertaTokenizer.from_pretrained(model_name)
-    model = RobertaForSequenceClassification.from_pretrained(model_name, num_labels=2)
+    if args.train:
+        model_name = 'roberta-base'
+        tokenizer = RobertaTokenizer.from_pretrained(model_name)
+        model = RobertaForSequenceClassification.from_pretrained(model_name, num_labels=2)
+    else:
+        print(f'Loading model from {args.model_dir}')
+        tokenizer = RobertaTokenizer.from_pretrained(args.model_dir)
+        model = RobertaForSequenceClassification.from_pretrained(args.model_dir)
+    
     model.to(device)
     
     # Create datasets
@@ -136,22 +174,30 @@ def main():
     val_loader = DataLoader(val_dataset, batch_size=16)
     test_loader = DataLoader(test_dataset, batch_size=16)
     
-    # Train the model
-    print('Starting training...')
-    best_model = train_model(model, train_loader, val_loader, device)
+    if args.train:
+        # Train the model
+        print('Starting training...')
+        best_model = train_model(model, train_loader, val_loader, device)
+        
+        # Load best model and evaluate
+        print('Loading best model and evaluating...')
+        model.load_state_dict(best_model)
+        results = evaluate_model(model, test_loader, device)
+        
+        # Save the model
+        print('Saving model...')
+        output_dir = Path(args.model_dir)
+        output_dir.mkdir(parents=True, exist_ok=True)
+        model.save_pretrained(output_dir)
+        tokenizer.save_pretrained(output_dir)
+        save_evaluation_results(results, output_dir)
+        print(f'Model and evaluation results saved to {output_dir}')
     
-    # Load best model and evaluate
-    print('Loading best model and evaluating...')
-    model.load_state_dict(best_model)
-    evaluate_model(model, test_loader, device)
-    
-    # Save the model
-    print('Saving model...')
-    output_dir = Path('models/roberta_classifier')
-    output_dir.mkdir(parents=True, exist_ok=True)
-    model.save_pretrained(output_dir)
-    tokenizer.save_pretrained(output_dir)
-    print(f'Model saved to {output_dir}')
+    if args.evaluate:
+        # Evaluate the model
+        print('Evaluating model...')
+        results = evaluate_model(model, test_loader, device)
+        save_evaluation_results(results, args.model_dir)
 
 if __name__ == '__main__':
     main()
