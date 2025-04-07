@@ -2,7 +2,7 @@ import os
 import time
 import json
 import pandas as pd
-from search import search_claims
+from fetch_fact_checks_by_topic import search_claims
 
 def scrape_publishers(publishers):
     all_claims = []  # List to hold claims from all publishers

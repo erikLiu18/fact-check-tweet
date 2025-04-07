@@ -24,6 +24,12 @@ To allocate GPU on PACE ICE:
 salloc --gres=gpu:H100:1 --ntasks-per-node=1
 ```
 
+## Classification Results
+### Trained on all data
+Test accuracy is same as the percentage of false labels. roBERTa classifier shows no improvement compared to naively guessing all as false. 
+### Trained on monthly data
+Same result. Can be seen under models/classifier_eval folder. The classifier always classify false.
+
 ## Important links to prior datasets and KO project
 * Workflow of the KO project and tutorial: [link](https://drive.google.com/file/d/1FQ-ZDHSC4dq0d38EIF1J92_zNFdSYoDo/view?usp=sharing)
 * [NELA Dataset](https://gtvault-my.sharepoint.com/:f:/g/personal/khu83_gatech_edu/EpLrHHhqikxKmNnffXBvD30BufXfZsfUMYNzOGj5FFm6Cw?e=7hSyvO)

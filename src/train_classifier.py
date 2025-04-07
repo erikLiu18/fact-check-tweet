@@ -131,6 +131,8 @@ def main():
                         help='Evaluate an existing model')
     parser.add_argument('--model-dir', type=str, default='models/roberta_classifier',
                         help='Directory containing the model to evaluate or save the new model')
+    parser.add_argument('--data-dir', type=str, default='data/processed',
+                        help='Directory containing the train, validation, and test CSV files')
     args = parser.parse_args()
     
     if not args.train and not args.evaluate:
@@ -146,9 +148,9 @@ def main():
     
     # Load data
     print('Loading data...')
-    train_texts, train_labels = load_data('data/processed/train_set.csv')
-    val_texts, val_labels = load_data('data/processed/val_set.csv')
-    test_texts, test_labels = load_data('data/processed/test_set.csv')
+    train_texts, train_labels = load_data(f'{args.data_dir}/train_set.csv')
+    val_texts, val_labels = load_data(f'{args.data_dir}/val_set.csv')
+    test_texts, test_labels = load_data(f'{args.data_dir}/test_set.csv')
     
     # Initialize tokenizer and model
     print('Initializing model and tokenizer...')
