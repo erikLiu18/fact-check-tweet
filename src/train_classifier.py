@@ -21,12 +21,16 @@ class FactCheckDataset(Dataset):
     def __len__(self):
         return len(self.labels)
 
-def load_data(file_path):
+def load_data(file_path, filter_month=None):
     """Load data from CSV file."""
     df = pd.read_csv(file_path)
+    if filter_month is not None:
+        df = df[df['month'] == filter_month]
     labels = df['mergedTextualRating'].astype(int).tolist()
     # Add debug prints
     print(f"\nLoading {file_path}")
+    if filter_month is not None:
+        print(f"Filtering for month={filter_month}")
     print("Label distribution:", np.bincount(labels))
     return df['text'].tolist(), labels
 
@@ -123,6 +127,7 @@ def evaluate_model(model, test_loader, device):
     print(results)
     return results
 
+# python src/train_classifier.py --evaluate --data-dir data/processed/balanced/2022 --test-dir data/processed/balanced/2023
 def main():
     parser = argparse.ArgumentParser(description='Train or evaluate RoBERTa classifier')
     parser.add_argument('--train', action='store_true',
@@ -131,8 +136,10 @@ def main():
                         help='Evaluate an existing model')
     parser.add_argument('--model-dir', type=str, default='models/roberta_classifier',
                         help='Directory containing the model to evaluate or save the new model')
-    parser.add_argument('--data-dir', type=str, default='data/processed',
+    parser.add_argument('--data-dir', type=str, default='data/processed/balanced/2022',
                         help='Directory containing the train, validation, and test CSV files')
+    parser.add_argument('--test-dir', type=str, default='data/processed/balanced/2023',
+                        help='Directory containing the sets for the test year')
     args = parser.parse_args()
     
     if not args.train and not args.evaluate:
@@ -150,7 +157,13 @@ def main():
     print('Loading data...')
     train_texts, train_labels = load_data(f'{args.data_dir}/train_set.csv')
     val_texts, val_labels = load_data(f'{args.data_dir}/val_set.csv')
-    test_texts, test_labels = load_data(f'{args.data_dir}/test_set.csv')
+    
+    # Load test data from either custom path or default location
+    if args.test_dir:
+        print(f'Loading custom test data from {args.test_dir}')
+        test_texts, test_labels = load_data(f'{args.test_dir}/full_set.csv', filter_month=1)
+    else:
+        test_texts, test_labels = load_data(f'{args.data_dir}/test_set.csv')
     
     # Initialize tokenizer and model
     print('Initializing model and tokenizer...')
