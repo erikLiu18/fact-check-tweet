@@ -25,7 +25,7 @@ def preprocess_claims(file_path):
     
     return df_filtered
 
-def create_full_dataset(df):
+def create_full_dataset(df, output_dir):
     """
     Create a CSV file containing only the text and mergedTextualRating columns.
     
@@ -36,10 +36,10 @@ def create_full_dataset(df):
     full_set = df[['text', 'mergedTextualRating']].copy()
     
     # Create the output directory if it doesn't exist
-    os.makedirs('data/processed', exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
     
     # Save the full dataset
-    full_set.to_csv('data/processed/full_set.csv', index=False)
+    full_set.to_csv(os.path.join(output_dir, 'full_set.csv'), index=False)
     print(f'Full dataset saved with {len(full_set)} rows')
     
     return full_set
@@ -108,13 +108,15 @@ def split_dataset_by_month(df, month, output_dir):
     # Create month directory
     month_dir = os.path.join(output_dir, month)
     os.makedirs(month_dir, exist_ok=True)
+
+    full_set = create_full_dataset(month_df, month_dir)
     
     # Split the dataset
     train_df, temp_df = train_test_split(
-        month_df, 
+        full_set, 
         train_size=0.7, 
         random_state=42,
-        stratify=month_df['mergedTextualRating']
+        stratify=full_set['mergedTextualRating']
     )
     
     val_df, test_df = train_test_split(
@@ -163,7 +165,7 @@ if __name__ == "__main__":
         df_filtered = pd.read_json(output_file_path, orient='records', lines=True)
         
         # Create and save the full dataset
-        full_set = create_full_dataset(df_filtered)
+        full_set = create_full_dataset(df_filtered, output_dir='data/processed/')
         
         # Split and save the dataset
         split_dataset(full_set)

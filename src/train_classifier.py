@@ -140,6 +140,8 @@ def main():
                         help='Directory containing the train, validation, and test CSV files')
     parser.add_argument('--test-dir', type=str, default='data/processed/balanced/2023',
                         help='Directory containing the sets for the test year')
+    parser.add_argument('--evaluate-month', type=int, 
+                        help='Month to evaluate on when test_dir is specified')
     args = parser.parse_args()
     
     if not args.train and not args.evaluate:
@@ -161,7 +163,10 @@ def main():
     # Load test data from either custom path or default location
     if args.test_dir:
         print(f'Loading custom test data from {args.test_dir}')
-        test_texts, test_labels = load_data(f'{args.test_dir}/full_set.csv', filter_month=1)
+        if args.evaluate_month is not None:
+            test_texts, test_labels = load_data(f'{args.test_dir}/full_set.csv', filter_month=args.evaluate_month)
+        else:
+            test_texts, test_labels = load_data(f'{args.test_dir}/full_set.csv')
     else:
         test_texts, test_labels = load_data(f'{args.data_dir}/test_set.csv')
     
