@@ -4,7 +4,7 @@ import argparse
 from sklearn.model_selection import train_test_split
 
 from config import RATING_MERGE_DICT
-from src.preprocessing.util import load_claims_from_file, convert_claims_to_dataframe
+from util import load_claims_from_file, convert_claims_to_dataframe
 
 
 def preprocess_claims(file_path):
@@ -145,22 +145,25 @@ def split_dataset_by_month(df, month, output_dir):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Preprocess the fact-checked claims.')
-    parser.add_argument('--task', type=str, choices=['process_raw', 'split', 'split_month'], help='Preprocessing task to perform')
+    parser.add_argument('--file', required=True, type=str, default='data/raw/fact_claims_1739933287.json', help='The file to preprocess.')
+    parser.add_argument('--task', required=True, type=str, choices=['process_raw', 'split', 'split_month'], help='Preprocessing task to perform')
     args = parser.parse_args()
 
     if args.task == 'process_raw':
         # Process the claims
-        df_filtered = preprocess_claims('data/raw/fact_claims_1739933287.json')
+        df_filtered = preprocess_claims(args.file)
         print(f'Number of rows in df_filtered: {df_filtered.shape[0]}')
 
         # Save df_filtered to a JSON file in the data/processed folder
-        output_file_path = 'data/processed/processed_fact_claims_1739933287.json'
+        # Extract the original filename from the path and prepend "processed_"
+        original_filename = os.path.basename(args.file)
+        output_file_path = f'data/processed/processed_{original_filename}'
 
         df_filtered.to_json(output_file_path, orient='records', lines=True)
         print(f'Data saved to {output_file_path}')
     elif args.task == 'split':
         # Save df_filtered to a JSON file in the data/processed folder
-        output_file_path = 'data/processed/processed_fact_claims_1739933287.json'
+        output_file_path = args.file
         
         df_filtered = pd.read_json(output_file_path, orient='records', lines=True)
         
@@ -171,7 +174,7 @@ if __name__ == "__main__":
         split_dataset(full_set)
     elif args.task == 'split_month':
         # Save df_filtered to a JSON file in the data/processed folder
-        output_file_path = 'data/processed/processed_fact_claims_1739933287.json'
+        output_file_path = args.file
         
         df_filtered = pd.read_json(output_file_path, orient='records', lines=True)
         

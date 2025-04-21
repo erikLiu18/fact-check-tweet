@@ -194,11 +194,12 @@ def main():
     parser = argparse.ArgumentParser(description='Balance the dataset by combining fact claims with NYT articles.')
     parser.add_argument('--year', type=int, required=True,
                         help='Year to filter the data for')
+    parser.add_argument('--fact-claims-file', type=str, default='data/processed/processed_fact_claims_1745200721.json',
+                        help='Path to the processed fact claims file')
     args = parser.parse_args()
     
     # Load fact claims
-    fact_claims_file = 'data/processed/processed_fact_claims_1739933287.json'
-    fact_claims_df = load_fact_claims(fact_claims_file, args.year)
+    fact_claims_df = load_fact_claims(args.fact_claims_file, args.year)
     
     print(f"Loaded {len(fact_claims_df)} fact claims for year {args.year}")
     print(f"Class distribution in fact claims:")

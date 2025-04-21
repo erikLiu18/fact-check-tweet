@@ -10,7 +10,7 @@ from googleapiclient.errors import HttpError
 log_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../logs/search.log'))
 logging.basicConfig(filename=log_file_path, level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def search_claims(query=None, publisher=None):
+def search_claims(query=None, publisher=None, maxAgeDays=None):
     if not query and not publisher:
         raise ValueError("Either 'query' or 'publisher' must be provided.")
 
@@ -37,6 +37,8 @@ def search_claims(query=None, publisher=None):
             request_params['query'] = query
         if publisher:
             request_params['reviewPublisherSiteFilter'] = publisher
+        if maxAgeDays is not None:
+            request_params['maxAgeDays'] = maxAgeDays
         
         request = service.claims().search(**request_params)
         
@@ -93,11 +95,12 @@ def main():
     parser = argparse.ArgumentParser(description='Search for fact-checked claims.')
     parser.add_argument('--query', type=str, help='The claim to fact check.')
     parser.add_argument('--publisher', type=str, help='The publisher to filter claims by.')
+    parser.add_argument('--max-age-days', type=int, help='Maximum age in days for returned search results.', dest='maxAgeDays')
 
     args = parser.parse_args()
 
     # Call search_claims with the provided arguments
-    results = search_claims(query=args.query, publisher=args.publisher)
+    results = search_claims(query=args.query, publisher=args.publisher, maxAgeDays=args.maxAgeDays)
     
     if results:
         # Use both query and publisher for the filename if both are present
