@@ -1,0 +1,41 @@
+{
+  "metrics": {
+    "accuracy": 0.8654822335025381,
+    "precision": 0.8738223780435344,
+    "recall": 0.8654822335025381,
+    "f1": 0.8694944978796012,
+    "total_time_seconds": 47.938024282455444,
+    "avg_time_per_claim_seconds": 0.1216701123920189
+  },
+  "report": {
+    "FAKE": {
+      "precision": 0.9322033898305084,
+      "recall": 0.9192200557103064,
+      "f1-score": 0.9256661991584852,
+      "support": 359.0
+    },
+    "REAL": {
+      "precision": 0.275,
+      "recall": 0.3142857142857143,
+      "f1-score": 0.29333333333333333,
+      "support": 35.0
+    },
+    "accuracy": 0.8654822335025381,
+    "macro avg": {
+      "precision": 0.6036016949152543,
+      "recall": 0.6167528849980104,
+      "f1-score": 0.6094997662459093,
+      "support": 394.0
+    },
+    "weighted avg": {
+      "precision": 0.8738223780435344,
+      "recall": 0.8654822335025381,
+      "f1-score": 0.8694944978796012,
+      "support": 394.0
+    },
+    "label_mapping": {
+      "0": "FAKE",
+      "1": "REAL"
+    }
+  }
+}

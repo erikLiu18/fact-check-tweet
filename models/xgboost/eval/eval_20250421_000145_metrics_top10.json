@@ -1,0 +1,21 @@
+{
+  "accuracy": 0.6776649746192893,
+  "precision": 0.0660377358490566,
+  "recall": 0.2,
+  "f1": 0.09929078014184398,
+  "confusion_matrix": [
+    [
+      260,
+      99
+    ],
+    [
+      28,
+      7
+    ]
+  ],
+  "total_samples": 394,
+  "predicted_real": 106,
+  "predicted_fake": 288,
+  "timestamp": "20250421_000145",
+  "features_file": "data/features/features_2024_10_top10.csv"
+}

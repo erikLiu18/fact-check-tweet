@@ -1,0 +1,17 @@
+Feature file: data/features/features_2024_10_top10.csv
+Timestamp: 20250421_000145
+
+Classification Report:
+              precision    recall  f1-score   support
+
+        Fake       0.90      0.72      0.80       359
+        Real       0.07      0.20      0.10        35
+
+    accuracy                           0.68       394
+   macro avg       0.48      0.46      0.45       394
+weighted avg       0.83      0.68      0.74       394
+
+
+Confusion Matrix:
+[[260  99]
+ [ 28   7]]

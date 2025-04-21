@@ -1,0 +1,61 @@
+{
+  "train": {
+    "accuracy": 0.8620033812341504,
+    "precision": 0.8719062092922275,
+    "recall": 0.8486897717666948,
+    "f1": 0.8601413578924824,
+    "confusion_matrix": [
+      [
+        2071,
+        295
+      ],
+      [
+        358,
+        2008
+      ]
+    ]
+  },
+  "validation": {
+    "accuracy": 0.6933534743202417,
+    "precision": 0.7140468227424749,
+    "recall": 0.6450151057401813,
+    "f1": 0.6777777777777778,
+    "confusion_matrix": [
+      [
+        491,
+        171
+      ],
+      [
+        235,
+        427
+      ]
+    ]
+  },
+  "test": {
+    "accuracy": 0.6845991561181435,
+    "precision": 0.6984126984126984,
+    "recall": 0.6497890295358649,
+    "f1": 0.673224043715847,
+    "confusion_matrix": [
+      [
+        341,
+        133
+      ],
+      [
+        166,
+        308
+      ]
+    ]
+  },
+  "parameters": {
+    "objective": "binary:logistic",
+    "eval_metric": "logloss",
+    "max_depth": 9,
+    "learning_rate": 0.1,
+    "n_estimators": 19,
+    "subsample": 1.0,
+    "colsample_bytree": 0.8,
+    "tree_method": "hist",
+    "best_iteration": 19
+  }
+}

@@ -145,7 +145,7 @@ def split_dataset_by_month(df, month, output_dir):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Preprocess the fact-checked claims.')
-    parser.add_argument('--file', required=True, type=str, default='data/raw/fact_claims_1739933287.json', help='The file to preprocess.')
+    parser.add_argument('--file', required=True, type=str, default='data/raw/fact_claims_1745200721.json', help='The file to preprocess.')
     parser.add_argument('--task', required=True, type=str, choices=['process_raw', 'split', 'split_month'], help='Preprocessing task to perform')
     args = parser.parse_args()
 
@@ -179,7 +179,7 @@ if __name__ == "__main__":
         df_filtered = pd.read_json(output_file_path, orient='records', lines=True)
         
         # Create monthly splits for January, February, and March 2022
-        months = ['2024-01', '2024-02', '2024-03']
+        months = ['2024-10', '2024-11', '2024-12']
         output_dir = 'data/processed/months'
         os.makedirs(output_dir, exist_ok=True)
         
