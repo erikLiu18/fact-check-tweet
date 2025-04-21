@@ -376,9 +376,11 @@ dependencies:
       - pyasn1-modules==0.4.1
       - pyparsing==3.2.1
       - rsa==4.9
+      - seaborn==0.13.2
       - sentence-transformers==3.4.1
       - sympy==1.13.1
       - torch==2.6.0
       - triton==3.2.0
       - uritemplate==4.1.1
+      - xgboost==3.0.0
 prefix: /home/hice1/yliu3390/.conda/envs/iec
