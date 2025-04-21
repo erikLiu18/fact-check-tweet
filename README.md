@@ -8,6 +8,11 @@ conda activate iec
 ```
 
 ## Usage
+### Preprocessing
+* `data/processed/balanced` contains balanced dataset for training. 
+* To test the accuracy of classification with one month lag in data, we also generated data per month in `data/processed/months`.
+* If a model is trained on 2021 balanced dataset, we should evaluate it on 2022/01 dataset. 
+
 ### train_classifier.py
 * Train a new model: `python src/train_classifier.py --train`
 * Evaluate an existing model: `python src/train_classifier.py --evaluate --model-dir models/roberta_classifier`

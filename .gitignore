@@ -1,2 +1,6 @@
 */__pycache__
 data/fnc
+data/processed
+models/search_indices
+models/roberta_classifier
+*.pyc
