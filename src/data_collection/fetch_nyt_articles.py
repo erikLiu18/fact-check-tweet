@@ -12,6 +12,7 @@ RATE_WINDOW = 60  # seconds
 
 # Global variables for rate limiting
 request_count = 0
+last_reset_time = time.time()
 
 def fetch_nyt_articles(year: int, month: int, api_key: str) -> Dict[str, Any]:
     """
@@ -25,20 +26,8 @@ def fetch_nyt_articles(year: int, month: int, api_key: str) -> Dict[str, Any]:
     Returns:
         Dictionary containing the API response
     """
-    global request_count
+    global request_count, last_reset_time
 
-    if request_count >= RATE_LIMIT:
-        print(f"Rate limit reached. Waiting {RATE_WINDOW} seconds...")
-        time.sleep(RATE_WINDOW)
-        request_count = 0
-    
-    base_url = "https://api.nytimes.com/svc/archive/v1"
-    url = f"{base_url}/{year}/{month}.json"
-    
-    params = {
-        'api-key': api_key
-    }
-    
     # If we've reached the rate limit, wait until the minute is up
     if request_count >= RATE_LIMIT:
         wait_time = RATE_WINDOW - (time.time() - last_reset_time)
@@ -48,6 +37,13 @@ def fetch_nyt_articles(year: int, month: int, api_key: str) -> Dict[str, Any]:
             # Reset after waiting
             request_count = 0
             last_reset_time = time.time()
+    
+    base_url = "https://api.nytimes.com/svc/archive/v1"
+    url = f"{base_url}/{year}/{month}.json"
+    
+    params = {
+        'api-key': api_key
+    }
     
     print(f"Fetching articles for {year}/{month:02d}...")
     response = requests.get(url, params=params)
@@ -106,13 +102,21 @@ def main():
                         help='Directory to save the articles')
     args = parser.parse_args()
     
-    try:
-        # Initialize a list to store all filtered articles
-        all_filtered_articles = []
-        
-        # Fetch articles for all months in the year
-        for month in range(1, 13):
-            print(f"\nProcessing {args.year}/{month:02d}...")
+    # Initialize a list to store all filtered articles
+    all_filtered_articles = []
+    
+    # Get current date to handle future months in the current year
+    current_date = datetime.now()
+    max_month = 12
+    
+    # If the requested year is the current year, only process months up to the current month
+    if args.year == current_date.year:
+        max_month = current_date.month
+    
+    # Fetch articles for all valid months in the year
+    for month in range(1, max_month + 1):
+        print(f"\nProcessing {args.year}/{month:02d}...")
+        try:
             data = fetch_nyt_articles(args.year, month, args.api_key)
             
             # Count total articles and News articles
@@ -129,8 +133,12 @@ def main():
                     'pub_date': article.get('pub_date', '')
                 }
                 all_filtered_articles.append(filtered_article)
-        
-        # Save all filtered articles to a single file
+        except Exception as e:
+            print(f"Error fetching articles for {args.year}/{month:02d}: {str(e)}")
+            print("Continuing with the next month...")
+    
+    # Save all filtered articles to a single file
+    try:
         output_dir = Path(args.output_dir)
         output_dir.mkdir(parents=True, exist_ok=True)
         output_file = output_dir / f"nyt_articles_{args.year}.json"
@@ -140,9 +148,8 @@ def main():
         
         print(f"\nAll filtered articles for {args.year} saved to {output_file}")
         print(f"Total News articles saved: {len(all_filtered_articles)}")
-        
     except Exception as e:
-        print(f"Error: {str(e)}")
+        print(f"Error saving articles: {str(e)}")
         return 1
     
     return 0

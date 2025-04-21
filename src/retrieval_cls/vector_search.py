@@ -29,7 +29,7 @@ class FactCheckSearch:
         self.texts = None
         self.ratings = None
         
-    def build_index(self, csv_path: str, batch_size: int = 32) -> None:
+    def build_index(self, csv_path: str, batch_size: int = 32, disable_tqdm: bool = True) -> None:
         """
         Build FAISS index from the CSV file.
         
@@ -45,7 +45,7 @@ class FactCheckSearch:
         embeddings = []
         num_batches = (len(self.texts) + batch_size - 1) // batch_size
         
-        for i in tqdm(range(0, len(self.texts), batch_size), total=num_batches, desc="Processing batches"):
+        for i in tqdm(range(0, len(self.texts), batch_size), total=num_batches, desc="Processing batches", disable=disable_tqdm):
             batch_texts = self.texts[i:i + batch_size]
             batch_embeddings = self.model.encode(
                 batch_texts,
@@ -109,7 +109,7 @@ class FactCheckSearch:
 
         print(f"Index loaded with {len(self.texts)} documents")
     
-    def search(self, query: str, k: int = 5, threshold: float = 0.5) -> List[Tuple[str, str, float]]:
+    def search(self, query: str, k: int = 5, threshold: float = None) -> List[Tuple[str, str, float]]:
         """
         Search for similar texts.
         
@@ -122,7 +122,7 @@ class FactCheckSearch:
             List of tuples (text, rating, score)
         """
         # Generate query embedding
-        query_embedding = self.model.encode([query], convert_to_numpy=True)
+        query_embedding = self.model.encode([query], convert_to_numpy=True, show_progress_bar=False)
         faiss.normalize_L2(query_embedding)
         
         # Search
@@ -131,12 +131,12 @@ class FactCheckSearch:
         # Filter by threshold and format results
         results = []
         for score, idx in zip(scores[0], indices[0]):
-            if score >= threshold:
+            if threshold is None or score >= threshold:
                 results.append((self.texts[idx], self.ratings[idx], float(score)))
         
         return results
     
-    def extend_index(self, csv_path: str, batch_size: int = 32) -> None:
+    def extend_index(self, csv_path: str, batch_size: int = 32, disable_tqdm: bool = True) -> None:
         """
         Extend an existing FAISS index with additional data from a CSV file.
         
@@ -155,7 +155,7 @@ class FactCheckSearch:
         embeddings = []
         num_batches = (len(new_texts) + batch_size - 1) // batch_size
         
-        for i in tqdm(range(0, len(new_texts), batch_size), total=num_batches, desc="Processing batches"):
+        for i in tqdm(range(0, len(new_texts), batch_size), total=num_batches, desc="Processing batches", disable=disable_tqdm):
             batch_texts = new_texts[i:i + batch_size]
             batch_embeddings = self.model.encode(
                 batch_texts,
@@ -197,7 +197,7 @@ def main():
                         help='Extend existing index with data from additional CSV file')
     parser.add_argument('--top-k', type=int, default=5,
                         help='Number of results to return')
-    parser.add_argument('--threshold', type=float, default=0.5,
+    parser.add_argument('--threshold', type=float, default=None,
                         help='Similarity score threshold')
     args = parser.parse_args()
     
@@ -209,10 +209,10 @@ def main():
         
         # Extend index if needed
         if args.extend_index:
-            searcher.extend_index(args.input, batch_size=args.batch_size)
+            searcher.extend_index(args.input, batch_size=args.batch_size, disable_tqdm=False)
             searcher.save_index(args.output_dir)
     else:
-        searcher.build_index(args.input, batch_size=args.batch_size)
+        searcher.build_index(args.input, batch_size=args.batch_size, disable_tqdm=False)
         searcher.save_index(args.output_dir)
     
     # Interactive search

@@ -36,7 +36,7 @@ def main():
 
     if claims:
         current_timestamp = int(time.time())  # Get current timestamp
-        output_file = f'{os.path.abspath(os.path.join(os.path.dirname(__file__), "../data"))}/fact_claims_{current_timestamp}.json'  # Use absolute path based on script location
+        output_file = f'{os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data/raw"))}/fact_claims_{current_timestamp}.json'  # Use absolute path based on script location
         with open(output_file, 'w') as json_file:
             json.dump(claims, json_file, indent=4)
         print(f"Combined claims saved to {output_file}")

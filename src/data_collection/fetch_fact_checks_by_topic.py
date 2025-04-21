@@ -7,7 +7,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 # Set up logging to a file
-log_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../logs/search.log'))
+log_file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../logs/search.log'))
 logging.basicConfig(filename=log_file_path, level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def search_claims(query=None, publisher=None):
